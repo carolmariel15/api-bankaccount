@@ -2,6 +2,8 @@ package com.nttdata.api.bankaccount.document;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,6 +12,7 @@ import lombok.Setter;
 public class DebitCard {
 
 	private String cardNumber;
+	@JsonFormat(pattern = "dd/MM/yyyy")
 	private Date expiryDate;
 	private TypeCard typeCard;
 	

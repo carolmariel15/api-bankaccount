@@ -28,7 +28,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping(name = "/api/bankaccount")
+@RequestMapping("/api/bankaccount")
 public class BankAccountController {
 
 	@Autowired
@@ -50,6 +50,7 @@ public class BankAccountController {
 		Map<String, Object> response = new HashMap<>();
 
 		return monoBankAccount.flatMap(bankAccount -> {
+			bankAccount.setMembershipDate(new Date());
 			return bankAccountService.save(bankAccount).map(ba -> {
 				response.put("BankAccount", ba);
 				response.put("message", "Successfully saved.");
