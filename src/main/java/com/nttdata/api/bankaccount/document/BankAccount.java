@@ -16,6 +16,7 @@ public class BankAccount {
 	
 	@Id
 	private String accountNumber;
+	private TypeClient typeClient;
 	private String codeClient;
 	private TypeAccount typeAccount;
 	private Currency currency;

@@ -32,7 +32,7 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequestMapping("/api/bankaccount")
 public class BankAccountController {
-	
+
 	private static final Logger LOGGER = LogManager.getLogger(BankAccountController.class);
 
 	@Autowired
@@ -40,17 +40,27 @@ public class BankAccountController {
 
 	@GetMapping
 	public Mono<ResponseEntity<Flux<BankAccount>>> findAll() {
-		return Mono.just(ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(bankAccountService.findAll()));
+		return Mono
+				.just(ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(bankAccountService.findAll()));
 	}
 
 	@GetMapping("/{id}")
 	public Mono<ResponseEntity<BankAccount>> findById(@PathVariable String id) {
-		return bankAccountService.findById(id).map(ba -> ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(ba))
+		return bankAccountService.findById(id)
+				.map(ba -> ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(ba))
 				.defaultIfEmpty(ResponseEntity.notFound().build());
 	}
 
+	@GetMapping("/typeClient/{codeClient}-{typeClient}")
+	public Mono<ResponseEntity<Flux<BankAccount>>> findByCodeClientAndTypeClientTypeClient(
+			@PathVariable String codeClient, @PathVariable String typeClient) {
+		return Mono.just(ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
+				.body(bankAccountService.findByCodeClientAndTypeClientTypeClient(codeClient, typeClient)));
+	}
+
 	@PostMapping
-	public Mono<ResponseEntity<Map<String, Object>>> addBankAccount(@Valid @RequestBody Mono<BankAccount> monoBankAccount) {
+	public Mono<ResponseEntity<Map<String, Object>>> addBankAccount(
+			@Valid @RequestBody Mono<BankAccount> monoBankAccount) {
 		Map<String, Object> response = new HashMap<>();
 
 		return monoBankAccount.flatMap(bankAccount -> {
@@ -78,7 +88,8 @@ public class BankAccountController {
 	}
 
 	@PutMapping("/{id}")
-	public Mono<ResponseEntity<BankAccount>> editBankAccount(@RequestBody BankAccount bankAccount, @PathVariable String id) {
+	public Mono<ResponseEntity<BankAccount>> editBankAccount(@RequestBody BankAccount bankAccount,
+			@PathVariable String id) {
 		return bankAccountService.findById(id).flatMap(ba -> {
 			ba.setBalance(bankAccount.getBalance());
 			return bankAccountService.save(ba);

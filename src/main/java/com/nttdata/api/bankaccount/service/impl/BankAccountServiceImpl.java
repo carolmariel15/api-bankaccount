@@ -35,5 +35,11 @@ public class BankAccountServiceImpl implements IBankAccountService {
 	public Mono<Void> delete(BankAccount bankAccount) {
 		return bankAccountDAO.delete(bankAccount);
 	}
+
+	@Override
+	public Flux<BankAccount> findByCodeClientAndTypeClientTypeClient(String codeClient, String typeClient) {
+		// TODO Auto-generated method stub
+		return bankAccountDAO.findByCodeClientAndTypeClientTypeClient(codeClient, typeClient);
+	}
 	
 }

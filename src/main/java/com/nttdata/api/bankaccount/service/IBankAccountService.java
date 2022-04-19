@@ -14,5 +14,7 @@ public interface IBankAccountService {
 	public Mono<BankAccount> save(BankAccount bankAccount);
 	
 	public Mono<Void> delete(BankAccount bankAccount);
+	
+	public Flux<BankAccount> findByCodeClientAndTypeClientTypeClient(String codeClient, String typeClient);
 
 }
