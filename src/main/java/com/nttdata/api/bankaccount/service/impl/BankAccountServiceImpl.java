@@ -1,5 +1,7 @@
 package com.nttdata.api.bankaccount.service.impl;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +14,8 @@ import reactor.core.publisher.Mono;
 
 @Service
 public class BankAccountServiceImpl implements IBankAccountService {
+	
+	private static final Logger LOGGER = LogManager.getLogger(BankAccountServiceImpl.class);
 
 	@Autowired
 	private IBankAccountDAO bankAccountDAO;
@@ -28,7 +32,11 @@ public class BankAccountServiceImpl implements IBankAccountService {
 
 	@Override
 	public Mono<BankAccount> save(BankAccount bankAccount) {
-		return bankAccountDAO.save(bankAccount);
+		
+		return bankAccountDAO.findByCodeClientAndTypeAccountId(bankAccount.getCodeClient(),bankAccount.getTypeAccount().getId())
+				.doOnSuccess(ex -> LOGGER.info("El cliente ya tiene una cuenta de este tipo"))
+				.switchIfEmpty(bankAccountDAO.save(bankAccount))
+				.onErrorResume(ex -> Mono.empty());
 	}
 
 	@Override
