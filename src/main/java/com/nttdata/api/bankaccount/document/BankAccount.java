@@ -11,7 +11,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Document(collection = "bank_account")
+@Document(collection = "bankaccount")
 public class BankAccount {
 	
 	@Id
@@ -22,6 +22,6 @@ public class BankAccount {
 	@Nullable
 	private Date membershipDate;
 	private double balance;
-	private DebitCard debitCard;
+	private Card card;
 
 }
