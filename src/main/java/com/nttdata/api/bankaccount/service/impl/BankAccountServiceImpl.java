@@ -33,10 +33,7 @@ public class BankAccountServiceImpl implements IBankAccountService {
 	@Override
 	public Mono<BankAccount> save(BankAccount bankAccount) {
 		
-		return bankAccountDAO.findByCodeClientAndTypeAccountId(bankAccount.getCodeClient(),bankAccount.getTypeAccount().getId())
-				.doOnSuccess(ex -> LOGGER.info("El cliente ya tiene una cuenta de este tipo"))
-				.switchIfEmpty(bankAccountDAO.save(bankAccount))
-				.onErrorResume(ex -> Mono.empty());
+		return bankAccountDAO.save(bankAccount);
 	}
 
 	@Override
@@ -48,6 +45,12 @@ public class BankAccountServiceImpl implements IBankAccountService {
 	public Flux<BankAccount> findByCodeClientAndTypeClientTypeClient(String codeClient, String typeClient) {
 		// TODO Auto-generated method stub
 		return bankAccountDAO.findByCodeClientAndTypeClientTypeClient(codeClient, typeClient);
+	}
+
+	@Override
+	public Mono<BankAccount> findByClientAndTypeAccount(String codeClient, Integer typeAccountId) {
+
+		return bankAccountDAO.findByCodeClientAndTypeAccountId(codeClient, typeAccountId);
 	}
 	
 }

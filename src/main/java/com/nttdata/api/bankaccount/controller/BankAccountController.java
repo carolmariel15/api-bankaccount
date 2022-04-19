@@ -65,14 +65,22 @@ public class BankAccountController {
 
 		return monoBankAccount.flatMap(bankAccount -> {
 			bankAccount.setMembershipDate(new Date());
-			return bankAccountService.save(bankAccount).map(ba -> {
+			return bankAccountService.findByClientAndTypeAccount(bankAccount.getCodeClient(), bankAccount.getTypeAccount().getId())
+			.map(ba -> {
+				response.put("message", "El cliente ya tiene una cuenta de este tipo.");
+				response.put("timestamp", new Date());
+
+				return ResponseEntity.created(URI.create("/api/bankaccount/".concat(ba.getAccountNumber())))
+						.contentType(MediaType.APPLICATION_JSON).body(response);
+			}).switchIfEmpty(bankAccountService.save(bankAccount).map(ba -> {
 				response.put("BankAccount", ba);
 				response.put("message", "Successfully saved.");
 				response.put("timestamp", new Date());
 
 				return ResponseEntity.created(URI.create("/api/bankaccount/".concat(ba.getAccountNumber())))
 						.contentType(MediaType.APPLICATION_JSON).body(response);
-			});
+			}));
+
 		}).onErrorResume(t -> {
 			return Mono.just(t).cast(WebExchangeBindException.class).flatMap(e -> Mono.just(e.getFieldErrors()))
 					.flatMapMany(Flux::fromIterable)
