@@ -51,11 +51,11 @@ public class BankAccountController {
 				.defaultIfEmpty(ResponseEntity.notFound().build());
 	}
 
-	@GetMapping("/typeClient/{codeClient}-{typeClient}")
+	@GetMapping("/typeClient/{codeClient}/{typeClient}")
 	public Mono<ResponseEntity<Flux<BankAccount>>> findByCodeClientAndTypeClientTypeClient(
 			@PathVariable String codeClient, @PathVariable String typeClient) {
 		return Mono.just(ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
-				.body(bankAccountService.findByCodeClientAndTypeClientTypeClient(codeClient, typeClient)));
+				.body(bankAccountService.findByCodeClientAndTypeClient(codeClient, typeClient)));
 	}
 
 	@PostMapping
@@ -78,13 +78,17 @@ public class BankAccountController {
 				response.put("timestamp", new Date());
 
 				return ResponseEntity.created(URI.create("/api/bankaccount/".concat(ba.getAccountNumber())))
+
 						.contentType(MediaType.APPLICATION_JSON).body(response);
-			}));
+			
+			})).doOnSuccess(e->LOGGER.info("OK"));
 
 		}).onErrorResume(t -> {
 			return Mono.just(t).cast(WebExchangeBindException.class).flatMap(e -> Mono.just(e.getFieldErrors()))
 					.flatMapMany(Flux::fromIterable)
+					
 					.map(fieldError -> "Field: " + fieldError.getField() + " " + fieldError.getDefaultMessage())
+					.doOnError(e->LOGGER.error(e.getMessage()))
 					.collectList().flatMap(list -> {
 						response.put("errors", list);
 						response.put("timestamp", new Date());

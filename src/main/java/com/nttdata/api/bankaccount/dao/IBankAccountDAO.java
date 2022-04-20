@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 @Repository
 public interface IBankAccountDAO extends ReactiveMongoRepository<BankAccount, String> {
 
-	public Flux<BankAccount> findByCodeClientAndTypeClientTypeClient(String codeClient, String typeClient);
+	public Flux<BankAccount> findByCodeClientAndTypeClient(String codeClient, String typeClient);
 
 	public Mono<BankAccount> findByCodeClientAndTypeAccountId(String codeClient, Integer typeAccountId);
 }
