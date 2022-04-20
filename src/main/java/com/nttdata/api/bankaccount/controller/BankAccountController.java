@@ -73,7 +73,7 @@ public class BankAccountController {
 				return ResponseEntity.created(URI.create("/api/bankaccount/".concat(ba.getAccountNumber())))
 						.contentType(MediaType.APPLICATION_JSON).body(response);
 			}).switchIfEmpty(bankAccountService.save(bankAccount).map(ba -> {
-				response.put("BankAccount", ba);
+				response.put("obj", ba);
 				response.put("message", "Successfully saved.");
 				response.put("timestamp", new Date());
 
