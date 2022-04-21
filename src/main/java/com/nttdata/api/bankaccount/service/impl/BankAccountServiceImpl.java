@@ -42,7 +42,7 @@ public class BankAccountServiceImpl implements IBankAccountService {
 	}
 
 	@Override
-	public Flux<BankAccount> findByCodeClientAndTypeClient(String codeClient, String typeClient) {
+	public Flux<BankAccount> findByCodeClientAndTypeClient(String codeClient, Integer typeClient) {
 		// TODO Auto-generated method stub
 		return bankAccountDAO.findByCodeClientAndTypeClient(codeClient, typeClient);
 	}

@@ -53,7 +53,7 @@ public class BankAccountController {
 
 	@GetMapping("/typeClient/{codeClient}/{typeClient}")
 	public Mono<ResponseEntity<Flux<BankAccount>>> findByCodeClientAndTypeClientTypeClient(
-			@PathVariable String codeClient, @PathVariable String typeClient) {
+			@PathVariable String codeClient, @PathVariable Integer typeClient) {
 		return Mono.just(ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
 				.body(bankAccountService.findByCodeClientAndTypeClient(codeClient, typeClient)));
 	}
