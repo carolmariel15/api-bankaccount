@@ -40,20 +40,25 @@ public class BankAccountController {
 
 	@GetMapping
 	public Mono<ResponseEntity<Flux<BankAccount>>> findAll() {
-		return Mono
-				.just(ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(bankAccountService.findAll()));
+		LOGGER.info("metodo findAll: Retorna las cuentas bancarias");
+		
+		return Mono.just(ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(bankAccountService.findAll()));
 	}
 
 	@GetMapping("/{id}")
 	public Mono<ResponseEntity<BankAccount>> findById(@PathVariable String id) {
+		LOGGER.info("metodo findById: Buscar una cuenta bancaria por su ID");
+		
 		return bankAccountService.findById(id)
 				.map(ba -> ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(ba))
 				.defaultIfEmpty(ResponseEntity.notFound().build());
 	}
 
 	@GetMapping("/typeClient/{codeClient}/{typeClient}")
-	public Mono<ResponseEntity<Flux<BankAccount>>> findByCodeClientAndTypeClientTypeClient(
+	public Mono<ResponseEntity<Flux<BankAccount>>> findByCodeClientAndTypeClient(
 			@PathVariable String codeClient, @PathVariable Integer typeClient) {
+		LOGGER.info("metodo findByCodeClientAndTypeClient: Buscar una cuenta bancaria por codeClient y typeClient");
+		
 		return Mono.just(ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
 				.body(bankAccountService.findByCodeClientAndTypeClient(codeClient, typeClient)));
 	}
@@ -73,6 +78,8 @@ public class BankAccountController {
 				return ResponseEntity.created(URI.create("/api/bankaccount/".concat(ba.getAccountNumber())))
 						.contentType(MediaType.APPLICATION_JSON).body(response);
 			}).switchIfEmpty(bankAccountService.save(bankAccount).map(ba -> {
+				LOGGER.info("metodo addBankAccount: Agrega una cuenta bancaria");
+				
 				response.put("obj", ba);
 				response.put("message", "Successfully saved.");
 				response.put("timestamp", new Date());
@@ -96,12 +103,14 @@ public class BankAccountController {
 
 						return Mono.just(ResponseEntity.badRequest().body(response));
 					});
-		});
+		}).doOnError(e -> LOGGER.warn("metodo addBankAccount: No se pudo agregar porque hubo errores"));
 	}
 
 	@PutMapping("/{id}")
 	public Mono<ResponseEntity<BankAccount>> editBankAccount(@RequestBody BankAccount bankAccount,
 			@PathVariable String id) {
+		LOGGER.info("metodo editBankAccount: Edita una cuenta bancaria");
+		
 		return bankAccountService.findById(id).flatMap(ba -> {
 			ba.setBalance(bankAccount.getBalance());
 			return bankAccountService.save(ba);
@@ -111,6 +120,8 @@ public class BankAccountController {
 
 	@DeleteMapping("/{id}")
 	public Mono<ResponseEntity<Void>> deleteBankAccount(@PathVariable String id) {
+		LOGGER.info("metodo deleteBankAccount: Elimina una cuenta bancaria");
+		
 		return bankAccountService.findById(id).flatMap(ba -> {
 			return bankAccountService.delete(ba).then(Mono.just(new ResponseEntity<Void>(HttpStatus.NO_CONTENT)));
 
