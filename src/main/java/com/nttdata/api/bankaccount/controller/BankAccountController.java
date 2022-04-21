@@ -93,6 +93,8 @@ public class BankAccountController {
 								response.put("obj", ba);
 								response.put("message", "Successfully saved.");
 								response.put("timestamp", new Date());
+								
+								LOGGER.info("metodo addBankAccount: Agrega una cuenta bancaria");
 								return ResponseEntity
 										.created(URI.create("/api/bankaccount/".concat(ba.getAccountNumber())))
 										.contentType(MediaType.APPLICATION_JSON).body(response);
@@ -103,6 +105,8 @@ public class BankAccountController {
 						response.put("obj", ba);
 						response.put("message", "Successfully saved.");
 						response.put("timestamp", new Date());
+						
+						LOGGER.info("metodo addBankAccount: Agrega una cuenta bancaria");
 
 						return ResponseEntity.created(URI.create("/api/bankaccount/".concat(ba.getAccountNumber())))
 
