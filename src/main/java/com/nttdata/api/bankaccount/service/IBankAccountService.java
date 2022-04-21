@@ -19,4 +19,6 @@ public interface IBankAccountService {
 
 	public Mono<BankAccount> findByClientAndTypeAccount(String codeClient, Integer typeAccountId);
 	
+	public Mono<BankAccount> findByCodeClientAndTypeClientAndTypeAccountId(String codeClient, Integer typeClient,Integer typeAccountId);
+	
 }

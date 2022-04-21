@@ -52,5 +52,14 @@ public class BankAccountServiceImpl implements IBankAccountService {
 
 		return bankAccountDAO.findByCodeClientAndTypeAccountId(codeClient, typeAccountId);
 	}
+
+	@Override
+	public Mono<BankAccount> findByCodeClientAndTypeClientAndTypeAccountId(String codeClient, Integer typeClient,
+			Integer typeAccountId) {
+	
+		
+		// TODO Auto-generated method stub
+		return bankAccountDAO.findByCodeClientAndTypeClientAndTypeAccountId(codeClient, typeClient, typeAccountId);
+	}
 	
 }

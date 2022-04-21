@@ -25,6 +25,7 @@ import org.springframework.web.bind.support.WebExchangeBindException;
 
 import com.nttdata.api.bankaccount.document.BankAccount;
 import com.nttdata.api.bankaccount.service.IBankAccountService;
+import com.nttdata.api.bankaccount.util.Constants;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -65,31 +66,56 @@ public class BankAccountController {
 
 		return monoBankAccount.flatMap(bankAccount -> {
 			bankAccount.setMembershipDate(new Date());
-			return bankAccountService.findByClientAndTypeAccount(bankAccount.getCodeClient(), bankAccount.getTypeAccount().getId())
-			.map(ba -> {
-				response.put("message", "El cliente ya tiene una cuenta de este tipo.");
-				response.put("timestamp", new Date());
 
-				return ResponseEntity.created(URI.create("/api/bankaccount/".concat(ba.getAccountNumber())))
-						.contentType(MediaType.APPLICATION_JSON).body(response);
-			}).switchIfEmpty(bankAccountService.save(bankAccount).map(ba -> {
-				response.put("obj", ba);
-				response.put("message", "Successfully saved.");
-				response.put("timestamp", new Date());
+			return bankAccountService.findByCodeClientAndTypeClientAndTypeAccountId(bankAccount.getCodeClient(),
+					bankAccount.getTypeClient(), bankAccount.getTypeAccount().getId()).map(ba -> {
+						// Un cliente personal solo puede tener un máximo de una cuenta de ahorro, una
+						// cuenta corriente o cuentas a plazo fijo.
+						if (ba.getTypeClient() == Constants.TIPE_CLIENT_NATURAL) {
 
-				return ResponseEntity.created(URI.create("/api/bankaccount/".concat(ba.getAccountNumber())))
+							response.put("message", "El cliente ya tiene una cuenta de este tipo.");
+							response.put("timestamp", new Date());
 
-						.contentType(MediaType.APPLICATION_JSON).body(response);
-			
-			})).doOnSuccess(e->LOGGER.info("OK"));
+							return ResponseEntity.created(URI.create("/api/bankaccount/".concat(ba.getAccountNumber())))
+									.contentType(MediaType.APPLICATION_JSON).body(response);
+						} else {
+							// Un cliente empresarial no puede tener una cuenta de ahorro o de plazo fijo
+							// pero sí múltiples cuentas corrientes.
+							if (ba.getTypeAccount().getId() != Constants.TYPE_ACCOUNT_CORRIENTE) {
+								response.put("message", "El cliente solo puede tener multiples cuentas CORRIENTES.");
+								response.put("timestamp", new Date());
+								return ResponseEntity
+										.created(URI.create("/api/bankaccount/".concat(bankAccount.getAccountNumber())))
+										.contentType(MediaType.APPLICATION_JSON).body(response);
+							} else {
+
+								bankAccountService.save(bankAccount);
+								response.put("obj", ba);
+								response.put("message", "Successfully saved.");
+								response.put("timestamp", new Date());
+								return ResponseEntity
+										.created(URI.create("/api/bankaccount/".concat(ba.getAccountNumber())))
+										.contentType(MediaType.APPLICATION_JSON).body(response);
+							}
+						}
+
+					}).switchIfEmpty(bankAccountService.save(bankAccount).map(ba -> {
+						response.put("obj", ba);
+						response.put("message", "Successfully saved.");
+						response.put("timestamp", new Date());
+
+						return ResponseEntity.created(URI.create("/api/bankaccount/".concat(ba.getAccountNumber())))
+
+								.contentType(MediaType.APPLICATION_JSON).body(response);
+
+					})).doOnSuccess(e -> LOGGER.info("OK"));
 
 		}).onErrorResume(t -> {
 			return Mono.just(t).cast(WebExchangeBindException.class).flatMap(e -> Mono.just(e.getFieldErrors()))
 					.flatMapMany(Flux::fromIterable)
-					
+
 					.map(fieldError -> "Field: " + fieldError.getField() + " " + fieldError.getDefaultMessage())
-					.doOnError(e->LOGGER.error(e.getMessage()))
-					.collectList().flatMap(list -> {
+					.doOnError(e -> LOGGER.error(e.getMessage())).collectList().flatMap(list -> {
 						response.put("errors", list);
 						response.put("timestamp", new Date());
 						response.put("status", HttpStatus.BAD_REQUEST.value());
